@@ -33,7 +33,7 @@ io.on('connection', (socket) => {
 
     socket.on('sendProjectile', (projectileRecieved) => {
         console.log('got projectile ',projectileRecieved);
-        socket.emit('broadcastProjectile', projectileRecieved);
+        io.emit('broadcastProjectile', projectileRecieved);
     });
 
 
