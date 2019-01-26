@@ -31,6 +31,12 @@ io.on('connection', (socket) => {
         }
     });
 
+    socket.on('sendProjectile', (projectileRecieved) => {
+        console.log('got projectile ',projectileRecieved);
+        socket.emit('broadcastProjectile', projectileRecieved);
+    });
+
+
     socket.on('disconnect', () => {
         delete players[socket.id];
         io.emit('deletePlayer', socket.id);
