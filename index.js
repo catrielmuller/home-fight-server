@@ -1,6 +1,7 @@
 const app = require('express')();
 const http = require('http').Server(app);
 const io = require('socket.io')(http);
+const PORT = process.env.PORT || 5000
 
 app.get('/', (req, res) => {
     res.send('<h1>Home Fight Server</h1>');
@@ -15,7 +16,6 @@ io.on('connection', (socket) => {
         x: 200,
         y: 200
     };
-    socket.emit('currentPlayers', players);
     socket.broadcast.emit('newPlayer', players[socket.id]);
 
     socket.on('getPlayers', () => {
@@ -27,18 +27,17 @@ io.on('connection', (socket) => {
             players[socket.id].x = position.x;
             players[socket.id].y = position.y;
             players[socket.id].r = position.r;
-            console.log(players[socket.id]);
             socket.broadcast.emit('playerMove', players[socket.id]);
         }
     });
 
     socket.on('disconnect', () => {
         delete players[socket.id];
-        io.emit('deletePlayer', players[socket.id]);
+        io.emit('deletePlayer', socket.id);
         console.log('user disconnected');
     });
 });
 
-http.listen(3005, () => {
-    console.log('listening on *:3005');
+http.listen(PORT, () => {
+    console.log(`Listening on ${ PORT }`);
 });
