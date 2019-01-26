@@ -8,6 +8,7 @@ app.get('/', (req, res) => {
 });
 
 const players = {};
+const score = {}
 io.on('connection', (socket) => {
     console.log('a user connected');
     players[socket.id] = {
@@ -36,12 +37,23 @@ io.on('connection', (socket) => {
         io.emit('broadcastProjectile', projectileRecieved);
     });
 
+    socket.on('hit', (hitInfo) => {
+        console.log('hit registered: ',hitInfo);
+        //TODO: add hit checking and logic?
+        io.emit('hitConfirmed', hitInfo);
+        //TODO: Update score on server
+        console.log('updating score: ',score);
+        io.emit('updateScore', score);
+        
+    });
 
     socket.on('disconnect', () => {
         delete players[socket.id];
         io.emit('deletePlayer', socket.id);
         console.log('user disconnected');
     });
+
+    
 });
 
 http.listen(PORT, () => {
