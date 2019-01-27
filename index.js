@@ -3,15 +3,17 @@ const http = require("http").Server(app);
 const io = require("socket.io")(http);
 const PORT = process.env.PORT || 5000;
 const uuid = require("uuid/v1");
+
 app.get("/", (req, res) => {
   res.send("<h1>Home Fight Server</h1>");
 });
 
 const players = {};
 const score = {};
+
 io.on("connection", socket => {
   console.log("a user connected", socket.id);
-
+  
   socket.on("initPlayer", data => {
     players[socket.id] = {
       id: socket.id,
@@ -88,11 +90,34 @@ io.on("connection", socket => {
 
   socket.on("disconnect", () => {
     delete players[socket.id];
-    io.emit("deletePlayer", socket.id);
+    ("deletePlayer", socket.id);
     console.log(`user disconnected: $socket.id`);
     console.log("Remaining users", Object.keys(players));
   });
+  
+  var interval = setInterval(spawnBullets, 10000, socket);
+
 });
+
+function spawnBullets(socket) {
+  console.log("SPAWN BULLETS with players ", Object.keys(players).length)
+  if(Object.keys(players).length <= 1){
+      console.log("no players or only one player, no need to spawn bullets :) ")
+  } else {
+        var spawnLocation = getRandomSpawnLocation();
+        console.log("about to spawn a bullet on location ",spawnLocation)
+        socket.broadcast.emit("spawnBullet", spawnLocation);
+  }
+}
+
+function getRandomSpawnLocation(){
+  spawnlocations = [{x:100, y:200}, {x:50, y:500},{x:200, y:1000},{x:250, y:550},{x:100, y:300},{x:600, y:1000}];
+  return spawnlocations[_getRndInteger(0,spawnlocations.length)]
+}
+
+function _getRndInteger(min, max) {
+  return Math.floor(Math.random() * (max - min) ) + min;
+}
 
 http.listen(PORT, () => {
   console.log(`Listening on ${PORT}`);
