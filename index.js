@@ -172,7 +172,8 @@ function getRandomSpawnLocation() {
     { x: 275, y: 980 },
     { x: 3300, y: 1300 },
     { x: 5300, y: 700 },
-    { x: 2600, y: 700 }
+    { x: 2600, y: 700 },
+    { x: 4900, y: 160 }
   ];
   const xOffset = -50 + Math.random() * 100;
   const { x, y } = spawnlocations[_getRndInteger(0, spawnlocations.length)];
