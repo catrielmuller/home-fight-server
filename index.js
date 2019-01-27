@@ -11,22 +11,18 @@ const players = {};
 const score = {};
 io.on("connection", socket => {
   console.log("a user connected", socket.id);
-  players[socket.id] = {
-    id: socket.id,
-    anim: "standFire",
-    velx: 0,
-    vely: 0,
-    accx: 0,
-    accy: 0,
-    r: false
-  };
 
   socket.on("initPlayer", data => {
-    console.log(data.username);
-    if (players[socket.id]) {
-      console.log("Player found: ", players[socket.id]);
-      players[socket.id].username = data.username;
-    }
+    players[socket.id] = {
+      id: socket.id,
+      anim: "standFire",
+      velx: 0,
+      vely: 0,
+      accx: 0,
+      accy: 0,
+      r: false,
+      username: data.username
+    };
     socket.broadcast.emit("newPlayer", players[socket.id]);
     socket.emit("currentPlayers", players);
     console.log(players);
