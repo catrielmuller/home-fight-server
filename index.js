@@ -20,11 +20,14 @@ io.on("connection", socket => {
     accy: 0,
     r: false
   };
-  socket.broadcast.emit("newPlayer", players[socket.id]);
 
-  socket.on("getPlayers", () => {
+  socket.on("initPlayer", (data) => {
+    console.log(data.username);
+    if(players[socket.id]){
+      players[socket.id].username = data.username;
+    }
+    socket.broadcast.emit("newPlayer", players[socket.id]);
     socket.emit("currentPlayers", players);
-    console.log("Current players", players);
   });
 
   socket.on("move", position => {
