@@ -64,6 +64,17 @@ io.on("connection", socket => {
     io.emit("updateScore", score);
   });
 
+  socket.on("playerDeath", playerInfo => {
+    console.log("player death registered: ", playerInfo);
+    //TODO: add hit checking and logic?
+    io.emit("playerDeathConfirmed", playerInfo);
+    //TODO: Update score on server
+    console.log("updating score: ", score);
+    io.emit("updateScore", score);
+  });
+
+  
+
   socket.on("disconnect", () => {
     delete players[socket.id];
     io.emit("deletePlayer", socket.id);
