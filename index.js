@@ -89,7 +89,7 @@ io.on("connection", socket => {
     }
 
     const bulletsDiff = bullets - players[socket.id].bullets;
-    io.emit("hitConfirmed", { hitInfo,bulletsDiff });
+    io.emit("hitConfirmed", { hitInfo, bulletsDiff });
     io.emit("playerBullet", players[socket.id]);
     if (bulletsDiff > 0) {
       for (let i = 0; i < bulletsDiff * 0.5; i++) {
@@ -169,12 +169,10 @@ function spawnBullets() {
 
 function getRandomSpawnLocation() {
   spawnlocations = [
-    { x: 100, y: 200 },
-    { x: 50, y: 500 },
-    { x: 200, y: 1000 },
-    { x: 250, y: 550 },
-    { x: 100, y: 300 },
-    { x: 600, y: 1000 }
+    { x: 275, y: 980 },
+    { x: 3300, y: 1300 },
+    { x: 5300, y: 700 },
+    { x: 2600, y: 700 }
   ];
   const xOffset = -50 + Math.random() * 100;
   const { x, y } = spawnlocations[_getRndInteger(0, spawnlocations.length)];
