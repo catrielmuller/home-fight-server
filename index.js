@@ -21,20 +21,22 @@ io.on("connection", socket => {
     r: false
   };
 
-  socket.on("initPlayer", (data) => {
+  socket.on("initPlayer", data => {
     console.log(data.username);
-    if(players[socket.id]){
+    if (players[socket.id]) {
+      console.log("Player found: ", players[socket.id]);
       players[socket.id].username = data.username;
     }
     socket.broadcast.emit("newPlayer", players[socket.id]);
     socket.emit("currentPlayers", players);
+    console.log(players);
   });
 
   socket.on("move", position => {
     if (players[socket.id]) {
       players[socket.id] = {
-        ...position,
-        id: socket.id
+        ...players[socket.id],
+        ...position
       };
 
       socket.broadcast.emit("playerMove", players[socket.id]);
@@ -75,8 +77,6 @@ io.on("connection", socket => {
     console.log("updating score: ", score);
     io.emit("updateScore", score);
   });
-
-  
 
   socket.on("disconnect", () => {
     delete players[socket.id];
