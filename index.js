@@ -71,8 +71,10 @@ io.on("connection", socket => {
   socket.on("hit", hitInfo => {
     console.log("hit registered: ", hitInfo);
     //TODO: add hit checking and logic?
+    if (!players[socket.id]) {
+      return;
+    }
     io.emit("hitConfirmed", hitInfo);
-
     const { bullets } = players[socket.id];
     players[socket.id].bullets = bullets > 0 ? Math.floor(bullets / 2) : -1;
     const bulletsDiff = bullets - players[socket.id].bullets;
