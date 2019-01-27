@@ -74,10 +74,10 @@ io.on("connection", socket => {
     if (!players[socket.id]) {
       return;
     }
-    io.emit("hitConfirmed", hitInfo);
     const { bullets } = players[socket.id];
     players[socket.id].bullets = bullets > 0 ? Math.floor(bullets / 2) : -1;
     const bulletsDiff = bullets - players[socket.id].bullets;
+    io.emit("hitConfirmed", hitInfo,bulletsDiff);
     io.emit("playerBullet", players[socket.id]);
     if (bulletsDiff > 0) {
       for (let i = 0; i < bulletsDiff * 0.5; i++) {
