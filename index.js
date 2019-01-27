@@ -96,8 +96,8 @@ io.on("connection", socket => {
         const { x, y } = players[socket.id];
 
         const angle = Math.PI * Math.random();
-        const v = 200;
-        const offset = 15;
+        const v = 500;
+        const offset = 60;
         const velX = v * Math.cos(angle) + players[socket.id].velx;
         const velY = 2 * -v * Math.sin(angle) + players[socket.id].vely;
         const xDir = io.emit("spawnBullet", {
