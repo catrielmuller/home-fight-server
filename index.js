@@ -13,7 +13,7 @@ const score = {};
 
 io.on("connection", socket => {
   console.log("a user connected", socket.id);
-  
+
   socket.on("initPlayer", data => {
     players[socket.id] = {
       id: socket.id,
@@ -88,35 +88,46 @@ io.on("connection", socket => {
     io.emit("updateScore", score);
   });
 
+  var interval = setTimeout(spawnBullets, 10000);
   socket.on("disconnect", () => {
     delete players[socket.id];
-    ("deletePlayer", socket.id);
     console.log(`user disconnected: $socket.id`);
     console.log("Remaining users", Object.keys(players));
+    clearTimeout(interval);
   });
-  
-  var interval = setInterval(spawnBullets, 10000, socket);
-
 });
 
-function spawnBullets(socket) {
-  console.log("SPAWN BULLETS with players ", Object.keys(players).length)
-  if(Object.keys(players).length <= 1){
-      console.log("no players or only one player, no need to spawn bullets :) ")
+function spawnBullets() {
+  interval = setTimeout(spawnBullets, 5000 + Math.random() * 10000);
+  console.log("SPAWN BULLETS with players ", Object.keys(players).length);
+  if (Object.keys(players).length <= 0) {
+    console.log("no players or only one player, no need to spawn bullets :) ");
   } else {
-        var spawnLocation = getRandomSpawnLocation();
-        console.log("about to spawn a bullet on location ",spawnLocation)
-        socket.broadcast.emit("spawnBullet", spawnLocation);
+    var spawnLocation = getRandomSpawnLocation();
+    console.log("about to spawn a bullet on location ", spawnLocation);
+    io.emit("spawnBullet", spawnLocation);
   }
 }
 
-function getRandomSpawnLocation(){
-  spawnlocations = [{x:100, y:200}, {x:50, y:500},{x:200, y:1000},{x:250, y:550},{x:100, y:300},{x:600, y:1000}];
-  return spawnlocations[_getRndInteger(0,spawnlocations.length)]
+function getRandomSpawnLocation() {
+  spawnlocations = [
+    { x: 100, y: 200 },
+    { x: 50, y: 500 },
+    { x: 200, y: 1000 },
+    { x: 250, y: 550 },
+    { x: 100, y: 300 },
+    { x: 600, y: 1000 }
+  ];
+  const xOffset = -50 + Math.random() * 100;
+  const { x, y } = spawnlocations[_getRndInteger(0, spawnlocations.length)];
+  return {
+    x: x + xOffset,
+    y
+  };
 }
 
 function _getRndInteger(min, max) {
-  return Math.floor(Math.random() * (max - min) ) + min;
+  return Math.floor(Math.random() * (max - min)) + min;
 }
 
 http.listen(PORT, () => {
