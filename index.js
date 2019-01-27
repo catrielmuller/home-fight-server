@@ -21,7 +21,8 @@ io.on("connection", socket => {
       accx: 0,
       accy: 0,
       r: false,
-      username: data.username
+      username: data.username,
+      bullets: 5
     };
     socket.broadcast.emit("newPlayer", players[socket.id]);
     socket.emit("currentPlayers", players);
@@ -40,6 +41,11 @@ io.on("connection", socket => {
   });
 
   socket.on("sendProjectile", projectileRecieved => {
+    if (players[socket.id] && players[socket.id].bullets >= 1) {
+      players[socket.id].bullets--;
+      io.emit("playerBullet", players[socket.id]);
+      console.log('send playerBullet');
+    }
     io.emit("broadcastProjectile", {
       id: uuid(),
       ...projectileRecieved
@@ -47,6 +53,11 @@ io.on("connection", socket => {
   });
 
   socket.on("fireballPickedUp", fireballPickedUp => {
+    if (players[socket.id]) {
+      players[socket.id].bullets++;
+      io.emit("playerBullet", players[socket.id]);
+      console.log('send playerBullet');
+    }
     console.log("fireballPickedUp", fireballPickedUp);
     socket.broadcast.emit("fireballPickedUp", fireballPickedUp);
   });
