@@ -45,6 +45,16 @@ io.on("connection", socket => {
     });
   });
 
+  socket.on("fireballPickedUp", fireballPickedUp => {
+    console.log("fireballPickedUp", fireballPickedUp);
+    socket.broadcast.emit("fireballPickedUp", fireballPickedUp);
+  });
+
+  socket.on("fireballExploded", fireballExploded => {
+    console.log("fireballExploded", fireballExploded);
+    socket.broadcast.emit("fireballExploded", fireballExploded);
+  });
+
   socket.on("hit", hitInfo => {
     console.log("hit registered: ", hitInfo);
     //TODO: add hit checking and logic?
