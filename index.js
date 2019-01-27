@@ -26,8 +26,10 @@ io.on("connection", socket => {
       username: data.username,
       bullets: data.bullets
     };
+    console.log(`${data.username} (${socket.id}) joined the match`);
     socket.broadcast.emit("newPlayer", players[socket.id]);
     socket.emit("currentPlayers", players);
+    updateScores();
   });
 
   socket.on("move", position => {
@@ -51,20 +53,19 @@ io.on("connection", socket => {
       id: uuid(),
       ...projectileRecieved
     });
+    updateScores();
   });
 
   socket.on("fireballPickedUp", fireballPickedUp => {
     if (players[socket.id]) {
       players[socket.id].bullets++;
       io.emit("playerBullet", players[socket.id]);
-      console.log("send playerBullet");
     }
-    console.log("fireballPickedUp", fireballPickedUp);
     socket.broadcast.emit("fireballPickedUp", fireballPickedUp);
+    updateScores();
   });
 
   socket.on("fireballExploded", fireballExploded => {
-    console.log("fireballExploded", fireballExploded);
     socket.broadcast.emit("fireballExploded", fireballExploded);
   });
 
@@ -76,6 +77,17 @@ io.on("connection", socket => {
     }
     const { bullets } = players[socket.id];
     players[socket.id].bullets = bullets > 0 ? Math.floor(bullets / 2) : -1;
+
+    // Score kill
+    if (players[socket.id].bullets == -1) {
+      if (hitInfo && players[hitInfo.source]) {
+        console.log("KILL!!!", players[hitInfo.source], "-> Player");
+        players[hitInfo.source].kills =
+          (players[hitInfo.source].kills || 0) + 1;
+      }
+      players[socket.id].kills = 0;
+    }
+
     const bulletsDiff = bullets - players[socket.id].bullets;
     io.emit("hitConfirmed", { hitInfo,bulletsDiff });
     io.emit("playerBullet", players[socket.id]);
@@ -101,22 +113,44 @@ io.on("connection", socket => {
   });
 
   socket.on("playerDeath", playerInfo => {
-    console.log("player death registered: ", playerInfo);
+    console.log("player death registered: ", playerInfo && playerInfo.username);
     //TODO: add hit checking and logic?
     io.emit("playerDeathConfirmed", playerInfo);
-    //TODO: Update score on server
-    console.log("updating score: ", score);
-    io.emit("updateScore", score);
+    updateScores();
   });
 
   var interval = setTimeout(spawnBullets, 10000);
   socket.on("disconnect", () => {
     delete players[socket.id];
-    console.log(`user disconnected: $socket.id`);
+    console.log(`user disconnected: ${socket.id}`);
     console.log("Remaining users", Object.keys(players));
     clearTimeout(interval);
+    updateScores();
   });
 });
+
+function updateScores() {
+  const scores = Object.values(players)
+    .map(player => {
+      return {
+        username: player.username || "ANON",
+        kills: player.kills || 0,
+        bullets: Math.max(0, player.bullets)
+      };
+    })
+    .sort((a, b) => {
+      let compare = (b.kills || 0) - (a.kills || 0);
+      if (compare === 0) {
+        compare = (b.bullets || 0) - (a.bullets || 0);
+      }
+      if (compare === 0) {
+        compare = a.username.localeCompare(b.username);
+      }
+      return compare;
+    });
+  console.log(scores);
+  io.emit("updateScore", scores);
+}
 
 function spawnBullets() {
   interval = setTimeout(spawnBullets, 5000 + Math.random() * 10000);
