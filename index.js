@@ -26,7 +26,6 @@ io.on("connection", socket => {
     };
     socket.broadcast.emit("newPlayer", players[socket.id]);
     socket.emit("currentPlayers", players);
-    console.log(players);
   });
 
   socket.on("move", position => {
