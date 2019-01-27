@@ -22,7 +22,7 @@ io.on("connection", socket => {
       accy: 0,
       r: false,
       username: data.username,
-      bullets: 5
+      bullets: data.bullets
     };
     socket.broadcast.emit("newPlayer", players[socket.id]);
     socket.emit("currentPlayers", players);
@@ -43,7 +43,7 @@ io.on("connection", socket => {
     if (players[socket.id] && players[socket.id].bullets >= 1) {
       players[socket.id].bullets--;
       io.emit("playerBullet", players[socket.id]);
-      console.log('send playerBullet');
+      console.log("send playerBullet");
     }
     io.emit("broadcastProjectile", {
       id: uuid(),
@@ -55,7 +55,7 @@ io.on("connection", socket => {
     if (players[socket.id]) {
       players[socket.id].bullets++;
       io.emit("playerBullet", players[socket.id]);
-      console.log('send playerBullet');
+      console.log("send playerBullet");
     }
     console.log("fireballPickedUp", fireballPickedUp);
     socket.broadcast.emit("fireballPickedUp", fireballPickedUp);
@@ -70,9 +70,11 @@ io.on("connection", socket => {
     console.log("hit registered: ", hitInfo);
     //TODO: add hit checking and logic?
     io.emit("hitConfirmed", hitInfo);
+
+    const { bullets } = players[socket.id];
+    players[socket.id].bullets = bullets > 0 ? Math.floor(bullets / 2) : -1;
+    io.emit("playerBullet", players[socket.id]);
     //TODO: Update score on server
-    console.log("updating score: ", score);
-    io.emit("updateScore", score);
   });
 
   socket.on("playerDeath", playerInfo => {
