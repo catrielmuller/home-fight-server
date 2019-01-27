@@ -75,7 +75,26 @@ io.on("connection", socket => {
 
     const { bullets } = players[socket.id];
     players[socket.id].bullets = bullets > 0 ? Math.floor(bullets / 2) : -1;
+    const bulletsDiff = bullets - players[socket.id].bullets;
     io.emit("playerBullet", players[socket.id]);
+    if (bulletsDiff > 0) {
+      for (let i = 0; i < bulletsDiff * 0.5; i++) {
+        const { x, y } = players[socket.id];
+
+        const angle = Math.PI * Math.random();
+        const v = 200;
+        const offset = 15;
+        const velX = v * Math.cos(angle) + players[socket.id].velx;
+        const velY = 2 * -v * Math.sin(angle) + players[socket.id].vely;
+        const xDir = io.emit("spawnBullet", {
+          id: uuid(),
+          x: x + offset * Math.cos(angle),
+          y: y - offset * Math.sin(angle),
+          velX,
+          velY
+        });
+      }
+    }
     //TODO: Update score on server
   });
 
@@ -105,7 +124,10 @@ function spawnBullets() {
   } else {
     var spawnLocation = getRandomSpawnLocation();
     console.log("about to spawn a bullet on location ", spawnLocation);
-    io.emit("spawnBullet", spawnLocation);
+    io.emit("spawnBullet", {
+      ...spawnLocation,
+      id: uuid()
+    });
   }
 }
 
